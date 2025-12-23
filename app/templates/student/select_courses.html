@@ -1,0 +1,173 @@
+﻿{% extends "common/base.html" %}
+
+{% block title %}选课操作 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>选课操作</h1>
+        <div>
+            <a href="{{ url_for('student.courses') }}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-search"></i> 课程查询
+            </a>
+            <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> 返回
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- 可用课程 -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">可选课程</h5>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    {% if assignments %}
+                    <form method="POST">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="5%">选择</th>
+                                        <th>课程名称</th>
+                                        <th>授课教师</th>
+                                        <th>学年学期</th>
+                                        <th>上课时间</th>
+                                        <th>学分</th>
+                                        <th>剩余名额</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for assignment in assignments %}
+                                    <tr>
+                                        <td>
+                                            <input type="radio" 
+                                                   name="assignment_id" 
+                                                   value="{{ assignment.assignment_id }}"
+                                                   required>
+                                        </td>
+                                        <td>
+                                            <strong>{{ assignment.course.course_name }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ assignment.course.course_id }}</small>
+                                            <br>
+                                            <span class="badge bg-{{ 'primary' if assignment.course.course_type == '必修' else 'success' }}">
+                                                {{ assignment.course.course_type }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {{ assignment.teacher.name }}
+                                            <br>
+                                            <small class="text-muted">{{ assignment.teacher.title or '教师' }}</small>
+                                        </td>
+                                        <td>
+                                            {{ assignment.academic_year }}
+                                            <br>
+                                            <small class="text-muted">第{{ assignment.semester }}学期</small>
+                                        </td>
+                                        <td>
+                                            {{ assignment.class_time or '未设置' }}
+                                            <br>
+                                            <small class="text-muted">{{ assignment.location or '未设置' }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ assignment.course.credits or 0 }}</span>
+                                        </td>
+                                        <td>
+                                            {% if assignment.enrollment_limit %}
+                                                {% set remaining = assignment.enrollment_limit - assignment.selections|length %}
+                                                <span class="badge bg-{{ 'success' if remaining > 0 else 'danger' }}">
+                                                    {{ remaining }}/{{ assignment.enrollment_limit }}
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">不限</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i> 确认选课
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                                取消
+                            </button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">暂无可选课程</h5>
+                        <p class="text-muted">当前没有可选的课程，或您已选择所有课程</p>
+                        <a href="{{ url_for('student.my_courses') }}" class="btn btn-primary mt-2">查看已选课程</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- 选课信息 -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">选课须知</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-info-circle text-primary me-2"></i>请仔细阅读课程信息</li>
+                        <li class="mb-2"><i class="fas fa-clock text-warning me-2"></i>注意上课时间冲突</li>
+                        <li class="mb-2"><i class="fas fa-exclamation-triangle text-danger me-2"></i>选课后请按时上课</li>
+                        <li><i class="fas fa-book text-success me-2"></i>选课截止前可退选</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">已选课程统计</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h2 class="text-primary">{{ student.selections.count() }}</h2>
+                        <small>已选课程数</small>
+                    </div>
+                    
+                    <div class="progress mb-2" style="height: 20px;">
+                        {% set max_courses = 6 %}
+                        {% set percentage = (student.selections.count() / max_courses * 100)|round %}
+                        <div class="progress-bar bg-{{ 'success' if percentage < 80 else 'warning' if percentage < 100 else 'danger' }}" 
+                             style="width: {{ percentage }}%"
+                             role="progressbar">
+                            {{ student.selections.count() }}/{{ max_courses }}
+                        </div>
+                    </div>
+                    <small class="text-muted">建议每学期选课不超过{{ max_courses }}门</small>
+                    
+                    <div class="mt-3">
+                        <a href="{{ url_for('student.my_courses') }}" class="btn btn-outline-primary btn-sm w-100">
+                            查看我的课程
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

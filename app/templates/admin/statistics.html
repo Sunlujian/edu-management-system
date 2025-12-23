@@ -1,0 +1,143 @@
+{% extends "common/base.html" %}
+
+{% block title %}数据统计 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">数据统计</h1>
+    
+    <!-- 总体统计卡片 -->
+    <div class="row mb-4">
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">学生总数</h5>
+                    <h2 class="card-text">{{ stats.students if stats and stats.students else 0 }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">教师总数</h5>
+                    <h2 class="card-text">{{ stats.teachers if stats and stats.teachers else 0 }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">系部总数</h5>
+                    <h2 class="card-text">{{ stats.departments if stats and stats.departments else 0 }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">课程总数</h5>
+                    <h2 class="card-text">{{ stats.courses if stats and stats.courses else 0 }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">教学任务</h5>
+                    <h2 class="card-text">{{ stats.active_assignments if stats and stats.active_assignments else 0 }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 mb-3">
+            <div class="card bg-dark text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">选课记录</h5>
+                    <h2 class="card-text">{{ stats.selections if stats and stats.selections else 0 }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 简单列表统计 -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">系部列表</h5>
+                </div>
+                <div class="card-body">
+                    {% if dept_stats and dept_stats|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>系部名称</th>
+                                    <th>学生数量</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in dept_stats %}
+                                <tr>
+                                    <td>{{ stat.dept_name }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ stat.student_count }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3">
+                        <p class="text-muted">暂无系部数据</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">课程列表</h5>
+                </div>
+                <div class="card-body">
+                    {% if course_stats and course_stats|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>课程名称</th>
+                                    <th>选课人数</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in course_stats %}
+                                <tr>
+                                    <td>{{ stat.course_name }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if stat.selection_count > 0 else 'secondary' }}">
+                                            {{ stat.selection_count }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3">
+                        <p class="text-muted">暂无课程数据</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

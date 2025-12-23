@@ -1,0 +1,158 @@
+﻿{% extends "common/base.html" %}
+
+{% block title %}管理员中心 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">管理员中心</h1>
+    
+    <!-- 统计卡片 -->
+    <div class="row">
+        <div class="col-xl-2 col-md-4 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">学生总数</h5>
+                    <h2 class="card-text">{{ stats.students }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">教师总数</h5>
+                    <h2 class="card-text">{{ stats.teachers }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 mb-4">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">系部总数</h5>
+                    <h2 class="card-text">{{ stats.departments }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 mb-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">课程总数</h5>
+                    <h2 class="card-text">{{ stats.courses }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 mb-4">
+            <div class="card bg-secondary text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">教学任务</h5>
+                    <h2 class="card-text">{{ stats.active_assignments }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-2 col-md-4 mb-4">
+            <div class="card bg-dark text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">选课记录</h5>
+                    <h2 class="card-text">{{ stats.selections }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 快速操作 -->
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">学生管理</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p>管理学生信息和学籍</p>
+                    <a href="{{ url_for('admin.students') }}" class="btn btn-primary">管理学生</a>
+                    <a href="{{ url_for('admin.add_student') }}" class="btn btn-outline-primary mt-2">添加学生</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">教师管理</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p>管理教师信息和教学任务</p>
+                    <a href="{{ url_for('admin.teachers') }}" class="btn btn-success">管理教师</a>
+                    <a href="{{ url_for('admin.add_teacher') }}" class="btn btn-outline-success mt-2">添加教师</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">系部管理</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p>管理系统系部和专业</p>
+                    <a href="{{ url_for('admin.departments') }}" class="btn btn-info">管理系部</a>
+                    <a href="{{ url_for('admin.add_department') }}" class="btn btn-outline-info mt-2">添加系部</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">课程管理</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p>管理系统课程设置</p>
+                    <a href="{{ url_for('admin.courses') }}" class="btn btn-warning">管理课程</a>
+                    <a href="{{ url_for('admin.add_course') }}" class="btn btn-outline-warning mt-2">添加课程</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">教学任务</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p>分配和管理教学任务</p>
+                    <a href="{{ url_for('admin.assignments') }}" class="btn btn-secondary">管理任务</a>
+                    <a href="{{ url_for('admin.add_assignment') }}" class="btn btn-outline-secondary mt-2">分配任务</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">用户管理</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p>管理系统用户账户</p>
+                    <a href="{{ url_for('admin.users') }}" class="btn btn-dark">管理用户</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">数据统计</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p>查看系统数据统计</p>
+                    <a href="{{ url_for('admin.statistics') }}" class="btn btn-primary">查看统计</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

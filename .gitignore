@@ -1,0 +1,105 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+venv.bak/
+env.bak/
+ENV.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Flask
+instance/
+.webassets-cache
+
+# Database
+*.db
+*.sqlite3
+*.sqlite
+migrations/
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Data files
+data/
+sql/data/
+*.csv
+*.xlsx
+*.xls
+
+# Backups
+*.bak
+*.backup
+
+# 特定于Windows
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.tmp
+*.temp
+
+# 缓存
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.coverage.*
+*.cover
+*.py,cover
+
+# 文档
+docs/_build/
+
+# 测试
+.tox/

@@ -1,0 +1,131 @@
+{% extends "common/base.html" %}
+
+{% block title %}系统设置 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">系统设置</h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">基本设置</h5>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST" action="{{ url_for('admin.update_settings') }}">
+                        <div class="mb-3">
+                            <label class="form-label">系统名称</label>
+                            <input type="text" class="form-control" value="教务管理系统" readonly>
+                            <small class="form-text text-muted">系统名称不可修改</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">版本信息</label>
+                            <input type="text" class="form-control" value="v1.0.0" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">选课开放时间</label>
+                            <div class="input-group">
+                                <input type="datetime-local" class="form-control" name="course_selection_start">
+                                <span class="input-group-text">至</span>
+                                <input type="datetime-local" class="form-control" name="course_selection_end">
+                            </div>
+                            <small class="form-text text-muted">设置学生选课的时间范围</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">成绩录入截止时间</label>
+                            <input type="datetime-local" class="form-control" name="grade_submission_deadline">
+                            <small class="form-text text-muted">教师录入成绩的截止时间</small>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="allow_registration" name="allow_registration">
+                            <label class="form-check-label" for="allow_registration">允许用户注册</label>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="auto_approve_courses" name="auto_approve_courses">
+                            <label class="form-check-label" for="auto_approve_courses">自动审批选课</label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">保存设置</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- 系统工具 -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">系统工具</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin.backup') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-download"></i> 数据备份
+                        </a>
+                        <a href="{{ url_for('admin.data_import') }}" class="btn btn-outline-success">
+                            <i class="fas fa-upload"></i> 数据导入
+                        </a>
+                        <a href="{{ url_for('admin.data_export') }}" class="btn btn-outline-info">
+                            <i class="fas fa-file-export"></i> 数据导出
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 系统信息 -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">系统信息</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>数据库类型</span>
+                            <span class="badge bg-secondary">MySQL</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>服务器时间</span>
+                            <span id="server-time">{{ now.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>运行状态</span>
+                            <span class="badge bg-success">正常</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>最后备份</span>
+                            <span class="text-muted">无</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 更新服务器时间
+    function updateServerTime() {
+        const now = new Date();
+        document.getElementById('server-time').textContent = 
+            now.toLocaleString('zh-CN', {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'});
+    }
+    setInterval(updateServerTime, 1000);
+</script>
+{% endblock %}

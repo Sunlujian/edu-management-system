@@ -1,0 +1,100 @@
+{% extends "common/base.html" %}
+
+{% block title %}个人信息 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>个人信息</h1>
+        <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> 返回
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">基本信息</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th width="30%">工号：</th>
+                            <td>{{ teacher.teacher_id }}</td>
+                        </tr>
+                        <tr>
+                            <th>姓名：</th>
+                            <td>{{ teacher.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>性别：</th>
+                            <td>{{ teacher.gender or '未设置' }}</td>
+                        </tr>
+                        <tr>
+                            <th>出生日期：</th>
+                            <td>{{ teacher.birth_date.strftime('%Y-%m-%d') if teacher.birth_date else '未设置' }}</td>
+                        </tr>
+                        <tr>
+                            <th>职称：</th>
+                            <td>{{ teacher.title or '未设置' }}</td>
+                        </tr>
+                        <tr>
+                            <th>入职时间：</th>
+                            <td>{{ teacher.hire_date.strftime('%Y-%m-%d') if teacher.hire_date else '未设置' }}</td>
+                        </tr>
+                        <tr>
+                            <th>所在系部：</th>
+                            <td>
+                                {% if teacher.department %}
+                                    {{ teacher.department.dept_name }}
+                                {% else %}
+                                    <span class="text-muted">未分配</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>专业方向：</th>
+                            <td>{{ teacher.specialty or '未设置' }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">账户信息</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th>用户名：</th>
+                            <td>{{ current_user.username }}</td>
+                        </tr>
+                        <tr>
+                            <th>邮箱：</th>
+                            <td>{{ current_user.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>角色：</th>
+                            <td><span class="badge bg-success">教师</span></td>
+                        </tr>
+                        <tr>
+                            <th>注册时间：</th>
+                            <td>{{ current_user.created_at.strftime('%Y-%m-%d') if current_user.created_at else '未知' }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-body text-center">
+                    <p>如需修改个人信息，请联系系统管理员</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

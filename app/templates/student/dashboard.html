@@ -1,0 +1,194 @@
+{% extends "common/base.html" %}
+
+{% block title %}学生中心 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">学生中心</h1>
+    
+    <div class="row">
+        <!-- 欢迎信息 -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">欢迎，{{ current_user.username }}同学！</h4>
+                    <p class="card-text">
+                        学号：{{ student.student_id }} | 
+                        系部：{{ student.department.dept_name if student.department else '未分配' }} | 
+                        状态：<span class="badge bg-success">{{ student.status or '在籍' }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 统计卡片 -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">已选课程</h5>
+                    <h2 class="card-text">{{ stats.total_courses }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">已获学分</h5>
+                    <h2 class="card-text">{{ stats.total_credits }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">平均绩点</h5>
+                    <h2 class="card-text">{{ stats.gpa }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">已修课程</h5>
+                    <h2 class="card-text">{{ stats.completed_courses }}</h2>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 快捷功能 -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">个人信息</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p>查看和修改个人信息</p>
+                    <a href="{{ url_for('student.profile') }}" class="btn btn-primary">查看信息</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">课程查询</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p>查看可选课程</p>
+                    <a href="{{ url_for('student.courses') }}" class="btn btn-success">查看课程</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">选课操作</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p>进行选课操作</p>
+                    <a href="{{ url_for('student.select_courses') }}" class="btn btn-warning">开始选课</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">成绩查询</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p>查看个人成绩</p>
+                    <a href="{{ url_for('student.grades') }}" class="btn btn-info">查看成绩</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 当前学期课程 -->
+        {% if current_assignments %}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">当前学期课程</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>课程名称</th>
+                                    <th>授课教师</th>
+                                    <th>上课时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assignment in current_assignments[:3] %}
+                                <tr>
+                                    <td>{{ assignment.course.course_name }}</td>
+                                    <td>{{ assignment.teacher.name }}</td>
+                                    <td>{{ assignment.class_time or '未设置' }}</td>
+                                    <td>
+                                        <a href="{{ url_for('student.courses') }}" class="btn btn-sm btn-outline-primary">查看</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- 最近成绩 -->
+        {% if selections %}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">最近成绩</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>课程名称</th>
+                                    <th>成绩</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for selection in selections if selection.total_grade is not none %}
+                                <tr>
+                                    <td>{{ selection.assignment.course.course_name }}</td>
+                                    <td>
+                                        <strong class="text-{{ 'success' if selection.total_grade >= 60 else 'danger' }}">
+                                            {{ "%.1f"|format(selection.total_grade) }}
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if selection.total_grade >= 60 else 'danger' }}">
+                                            {{ '及格' if selection.total_grade >= 60 else '不及格' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% if selections|selectattr('total_grade', 'defined')|list|length == 0 %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">暂无成绩记录</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

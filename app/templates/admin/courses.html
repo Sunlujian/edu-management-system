@@ -1,0 +1,88 @@
+{% extends "common/base.html" %}
+
+{% block title %}课程管理 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>课程管理</h1>
+        <a href="{{ url_for('admin.add_course') }}" class="btn btn-warning">
+            <i class="fas fa-plus"></i> 添加课程
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">课程列表</h5>
+        </div>
+        <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% if courses %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>课程编号</th>
+                            <th>课程名称</th>
+                            <th>课程类型</th>
+                            <th>学时</th>
+                            <th>学分</th>
+                            <th>教学任务数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                        <tr>
+                            <td><strong>{{ course.course_id }}</strong></td>
+                            <td>{{ course.course_name }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'primary' if course.course_type == '必修' else 'success' }}">
+                                    {{ course.course_type }}
+                                </span>
+                            </td>
+                            <td>{{ course.hours or '未设置' }}</td>
+                            <td>{{ course.credits or '未设置' }}</td>
+                            <td>
+                                <span class="badge bg-secondary">{{ course.assignments|length }}</span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('admin.edit_course', course_id=course.course_id) }}" 
+                                       class="btn btn-outline-primary" title="编辑">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form method="POST" action="{{ url_for('admin.delete_course', course_id=course.course_id) }}" 
+                                          class="d-inline" onsubmit="return confirm('确定要删除该课程吗？此操作不可逆！');">
+                                        <button type="submit" class="btn btn-outline-danger" title="删除">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">暂无课程数据</h5>
+                <p class="text-muted">点击上方"添加课程"按钮开始添加课程信息</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

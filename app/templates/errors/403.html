@@ -1,0 +1,17 @@
+{% extends "common/base.html" %}
+
+{% block title %}权限不足 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <h1 class="display-1 text-warning">403</h1>
+            <h2 class="mb-4">权限不足</h2>
+            <p class="lead mb-4">抱歉，您没有权限访问此页面。</p>
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary me-2">返回首页</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">重新登录</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

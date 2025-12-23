@@ -1,0 +1,17 @@
+{% extends "common/base.html" %}
+
+{% block title %}服务器错误 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <h1 class="display-1 text-danger">500</h1>
+            <h2 class="mb-4">服务器内部错误</h2>
+            <p class="lead mb-4">抱歉，服务器遇到了问题，请稍后再试。</p>
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary me-2">返回首页</a>
+            <a href="javascript:history.back()" class="btn btn-outline-secondary">返回上页</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

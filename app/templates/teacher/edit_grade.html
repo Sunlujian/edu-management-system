@@ -1,0 +1,103 @@
+{% extends "common/base.html" %}
+
+{% block title %}编辑成绩 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">编辑学生成绩</h4>
+                </div>
+                <div class="card-body">
+                    <!-- 学生信息 -->
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">学生信息</h6>
+                            <p class="mb-1"><strong>学号：</strong>{{ selection.student.student_id }}</p>
+                            <p class="mb-1"><strong>姓名：</strong>{{ selection.student.name }}</p>
+                            <p class="mb-0"><strong>系部：</strong>{{ selection.student.department.dept_name if selection.student.department else '未分配' }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 课程信息 -->
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title">课程信息</h6>
+                            <p class="mb-1"><strong>课程：</strong>{{ assignment.course.course_name }}</p>
+                            <p class="mb-0"><strong>学年学期：</strong>{{ assignment.academic_year }} 第{{ assignment.semester }}学期</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 成绩表单 -->
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.usual_grade.label(class="form-label") }}
+                            {{ form.usual_grade(class="form-control", min="0", max="100", step="0.1") }}
+                            {% for error in form.usual_grade.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                            <small class="form-text text-muted">平时成绩 (0-100分)</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.final_grade.label(class="form-label") }}
+                            {{ form.final_grade(class="form-control", min="0", max="100", step="0.1") }}
+                            {% for error in form.final_grade.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                            <small class="form-text text-muted">期末成绩 (0-100分)</small>
+                        </div>
+                        
+                        <!-- 总成绩显示 -->
+                        <div class="mb-3">
+                            <label class="form-label">总成绩 (自动计算)</label>
+                            <div class="form-control-plaintext">
+                                {% if selection.total_grade is not none %}
+                                    <span class="h5 text-{{ 'success' if selection.total_grade >= 60 else 'danger' }}">
+                                        {{ "%.1f"|format(selection.total_grade) }} 分
+                                    </span>
+                                    <span class="badge bg-{{ 'success' if selection.total_grade >= 60 else 'danger' }}">
+                                        {{ '及格' if selection.total_grade >= 60 else '不及格' }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </div>
+                            <small class="form-text text-muted">总成绩 = 平时成绩×30% + 期末成绩×70%</small>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('teacher.grade_management', assignment_id=assignment.assignment_id) }}" 
+                               class="btn btn-secondary me-md-2">取消</a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const usualInput = document.getElementById('usual_grade');
+    const finalInput = document.getElementById('final_grade');
+    
+    function calculateTotal() {
+        const usual = parseFloat(usualInput.value) || 0;
+        const final = parseFloat(finalInput.value) || 0;
+        const total = usual * 0.3 + final * 0.7;
+        
+        // 这里可以添加总成绩显示逻辑
+        console.log('总成绩:', total.toFixed(1));
+    }
+    
+    usualInput.addEventListener('input', calculateTotal);
+    finalInput.addEventListener('input', calculateTotal);
+});
+</script>
+{% endblock %}

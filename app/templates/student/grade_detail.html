@@ -1,0 +1,138 @@
+﻿{% extends "common/base.html" %}
+
+{% block title %}{{ selection.assignment.course.course_name }} - 成绩详情 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>成绩详情</h1>
+        <div>
+            <a href="{{ url_for('student.grades') }}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left"></i> 返回列表
+            </a>
+            <button class="btn btn-outline-primary" onclick="window.print()">
+                <i class="fas fa-print"></i> 打印
+            </button>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- 课程信息 -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">课程信息</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th width="40%">课程名称：</th>
+                            <td><strong>{{ selection.assignment.course.course_name }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>课程编号：</th>
+                            <td>{{ selection.assignment.course.course_id }}</td>
+                        </tr>
+                        <tr>
+                            <th>学年学期：</th>
+                            <td>{{ selection.assignment.academic_year }} 第{{ selection.assignment.semester }}学期</td>
+                        </tr>
+                        <tr>
+                            <th>课程类型：</th>
+                            <td>
+                                <span class="badge bg-{{ 'primary' if selection.assignment.course.course_type == '必修' else 'success' }}">
+                                    {{ selection.assignment.course.course_type }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>授课教师：</th>
+                            <td>{{ selection.assignment.teacher.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>学分：</th>
+                            <td>{{ selection.assignment.course.credits or 0 }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 成绩信息 -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">成绩信息</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th width="40%">平时成绩：</th>
+                            <td>
+                                {% if selection.usual_grade is not none %}
+                                    <span class="h5 text-{{ 'success' if selection.usual_grade >= 60 else 'danger' }}">
+                                        {{ selection.usual_grade }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>期末成绩：</th>
+                            <td>
+                                {% if selection.final_grade is not none %}
+                                    <span class="h5 text-{{ 'success' if selection.final_grade >= 60 else 'danger' }}">
+                                        {{ selection.final_grade }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>总成绩：</th>
+                            <td>
+                                {% if selection.total_grade is not none %}
+                                    <span class="h3 text-{{ 'success' if selection.total_grade >= 60 else 'danger' }}">
+                                        {{ "%.1f"|format(selection.total_grade) }}
+                                    </span>
+                                    <span class="badge bg-{{ 'success' if selection.total_grade >= 60 else 'danger' }} ms-2">
+                                        {{ '及格' if selection.total_grade >= 60 else '不及格' }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>绩点：</th>
+                            <td>
+                                {% if selection.total_grade is not none %}
+                                    {% if selection.total_grade >= 90 %}
+                                        <span class="badge bg-success" style="font-size: 1.2rem;">4.0</span>
+                                    {% elif selection.total_grade >= 80 %}
+                                        <span class="badge bg-success" style="font-size: 1.2rem;">3.0</span>
+                                    {% elif selection.total_grade >= 70 %}
+                                        <span class="badge bg-warning" style="font-size: 1.2rem;">2.0</span>
+                                    {% elif selection.total_grade >= 60 %}
+                                        <span class="badge bg-warning" style="font-size: 1.2rem;">1.0</span>
+                                    {% else %}
+                                        <span class="badge bg-danger" style="font-size: 1.2rem;">0.0</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>成绩录入时间：</th>
+                            <td>{{ selection.grade_time.strftime('%Y-%m-%d %H:%M') if selection.grade_time else '未录入' }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+﻿{% extends "common/base.html" %}
+
+{% block title %}我的课程 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>我的课程</h1>
+        <div>
+            <a href="{{ url_for('student.select_courses') }}" class="btn btn-warning me-2">
+                <i class="fas fa-plus"></i> 继续选课
+            </a>
+            <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> 返回
+            </a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">已选课程列表</h5>
+        </div>
+        <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% if selections %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>选课时间</th>
+                            <th>课程名称</th>
+                            <th>授课教师</th>
+                            <th>学年学期</th>
+                            <th>上课时间</th>
+                            <th>上课地点</th>
+                            <th>学分</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for selection in selections %}
+                        <tr>
+                            <td>
+                                {{ selection.selection_time.strftime('%Y-%m-%d') }}
+                                <br>
+                                <small class="text-muted">{{ selection.selection_time.strftime('%H:%M') }}</small>
+                            </td>
+                            <td>
+                                <strong>{{ selection.assignment.course.course_name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ selection.assignment.course.course_id }}</small>
+                            </td>
+                            <td>
+                                {{ selection.assignment.teacher.name }}
+                                <br>
+                                <small class="text-muted">{{ selection.assignment.teacher.title or '教师' }}</small>
+                            </td>
+                            <td>
+                                {{ selection.assignment.academic_year }}
+                                <br>
+                                <small class="text-muted">第{{ selection.assignment.semester }}学期</small>
+                            </td>
+                            <td>{{ selection.assignment.class_time or '未设置' }}</td>
+                            <td>{{ selection.assignment.location or '未设置' }}</td>
+                            <td>
+                                <span class="badge bg-info">{{ selection.assignment.course.credits or 0 }}</span>
+                            </td>
+                            <td>
+                                {% if selection.usual_grade is not none and selection.final_grade is not none %}
+                                    <span class="badge bg-success">成绩已出</span>
+                                {% elif selection.usual_grade is not none or selection.final_grade is not none %}
+                                    <span class="badge bg-warning">部分成绩</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">学习中</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">暂无已选课程</h5>
+                <p class="text-muted">您还没有选择任何课程</p>
+                <a href="{{ url_for('student.select_courses') }}" class="btn btn-primary mt-2">去选课</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

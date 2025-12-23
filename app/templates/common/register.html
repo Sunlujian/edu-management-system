@@ -1,0 +1,85 @@
+{% extends "common/base.html" %}
+
+{% block title %}账号激活 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">账号激活</h4>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <p class="text-muted mb-4">
+                        请使用您的学号/工号激活账号。如果没有学号/工号，请联系系统管理员。
+                    </p>
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">用户名</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                            <small class="form-text text-muted">用于登录的用户名</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">邮箱</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">密码</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="identity_type" class="form-label">身份类型</label>
+                            <select class="form-select" id="identity_type" name="identity_type" required>
+                                <option value="">请选择身份</option>
+                                <option value="student">学生</option>
+                                <option value="teacher">教师</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="identity_number" class="form-label">学号/工号</label>
+                            <input type="text" class="form-control" id="identity_number" name="identity_number" required>
+                            <small class="form-text text-muted">请输入您的学号（学生）或工号（教师）</small>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">激活账号</button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-3 text-center">
+                        <p>已有账号？<a href="{{ url_for('auth.login') }}">立即登录</a></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6>激活说明：</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-info-circle text-primary me-2"></i>学生：使用学号激活</li>
+                        <li><i class="fas fa-chalkboard-teacher text-success me-2"></i>教师：使用工号激活</li>
+                        <li><i class="fas fa-exclamation-triangle text-warning me-2"></i>请确保学号/工号正确</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

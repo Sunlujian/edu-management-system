@@ -1,0 +1,232 @@
+﻿{% extends "common/base.html" %}
+
+{% block title %}学生管理 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>学生管理</h1>
+        <a href="{{ url_for('admin.add_student') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> 添加学生
+        </a>
+    </div>
+    
+    <!-- 筛选表单 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label for="dept" class="form-label">按系部筛选</label>
+                    <select class="form-select" id="dept" name="dept" onchange="this.form.submit()">
+                        <option value="">全部系部</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.dept_id }}" {{ 'selected' if dept_filter == dept.dept_id }}>
+                            {{ dept.dept_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="status" class="form-label">按状态筛选</label>
+                    <select class="form-select" id="status" name="status" onchange="this.form.submit()">
+                        <option value="">全部状态</option>
+                        <option value="在籍" {{ 'selected' if status_filter == '在籍' }}>在籍</option>
+                        <option value="毕业" {{ 'selected' if status_filter == '毕业' }}>毕业</option>
+                        <option value="休学" {{ 'selected' if status_filter == '休学' }}>休学</option>
+                        <option value="退学" {{ 'selected' if status_filter == '退学' }}>退学</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4">
+                    <label for="search" class="form-label">搜索学生</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="search" name="search" 
+                               placeholder="搜索学号或姓名" value="{{ search_query }}">
+                        <button class="btn btn-outline-primary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="col-md-2 d-flex align-items-end">
+                    <a href="{{ url_for('admin.students') }}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-redo"></i> 重置筛选
+                    </a>
+                </div>
+            </form>
+            
+            <!-- 筛选结果统计 -->
+            {% if dept_filter or status_filter or search_query %}
+            <div class="mt-3">
+                <small class="text-muted">
+                    <i class="fas fa-filter"></i> 筛选结果: 
+                    {% if dept_filter %}
+                        <span class="badge bg-info me-2">系部: {{ departments|selectattr('dept_id', 'equalto', dept_filter)|map(attribute='dept_name')|first }}</span>
+                    {% endif %}
+                    {% if status_filter %}
+                        <span class="badge bg-warning me-2">状态: {{ status_filter }}</span>
+                    {% endif %}
+                    {% if search_query %}
+                        <span class="badge bg-primary me-2">搜索: {{ search_query }}</span>
+                    {% endif %}
+                    <span class="badge bg-success">共 {{ students|length }} 名学生</span>
+                </small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">学生列表</h5>
+            <span class="badge bg-primary">{{ students|length }} 名学生</span>
+        </div>
+        <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% if students %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>学号</th>
+                            <th>姓名</th>
+                            <th>性别</th>
+                            <th>出生日期</th>
+                            <th>入学时间</th>
+                            <th>系部</th>
+                            <th>状态</th>
+                            <th>账户</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>
+                                <strong>{{ student.student_id }}</strong>
+                                {% if student.user %}
+                                    <br>
+                                    <small class="text-muted">用户: {{ student.user.username }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ student.name }}</td>
+                            <td>
+                                {% if student.gender %}
+                                    <span class="badge bg-{{ 'primary' if student.gender == '男' else 'info' }}">
+                                        {{ student.gender }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">未设置</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ student.birth_date.strftime('%Y-%m-%d') if student.birth_date else '未设置' }}</td>
+                            <td>{{ student.enrollment_date.strftime('%Y-%m-%d') if student.enrollment_date else '未设置' }}</td>
+                            <td>
+                                {% if student.department %}
+                                    <span class="badge bg-secondary">{{ student.department.dept_name }}</span>
+                                {% else %}
+                                    <span class="text-muted">未分配</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if student.status == '在籍' else 'warning' if student.status == '休学' else 'secondary' }}">
+                                    {{ student.status or '在籍' }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if student.user %}
+                                    <span class="badge bg-success">已激活</span>
+                                {% else %}
+                                    <span class="badge bg-warning">未激活</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('admin.student_detail', student_id=student.student_id) }}" 
+                                       class="btn btn-outline-info" title="查看详情">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('admin.edit_student', student_id=student.student_id) }}" 
+                                       class="btn btn-outline-primary" title="编辑">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% if student.user %}
+                                    <a href="{{ url_for('admin.reset_user_password', user_id=student.user.id) }}" 
+                                       class="btn btn-outline-warning" title="重置密码">
+                                        <i class="fas fa-key"></i>
+                                    </a>
+                                    {% endif %}
+                                    <form method="POST" action="{{ url_for('admin.delete_student', student_id=student.student_id) }}" 
+                                          class="d-inline" onsubmit="return confirm('确定要删除该学生吗？此操作不可逆！');">
+                                        <button type="submit" class="btn btn-outline-danger" title="删除">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 批量操作 -->
+            <div class="mt-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i> 显示 {{ students|length }} 名学生
+                    </small>
+                </div>
+                <div>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="exportStudents()">
+                        <i class="fas fa-download"></i> 导出列表
+                    </button>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">暂无学生数据</h5>
+                <p class="text-muted">
+                    {% if dept_filter or status_filter or search_query %}
+                        没有找到符合筛选条件的学生
+                    {% else %}
+                        点击上方"添加学生"按钮开始添加学生信息
+                    {% endif %}
+                </p>
+                {% if dept_filter or status_filter or search_query %}
+                <a href="{{ url_for('admin.students') }}" class="btn btn-outline-primary mt-2">
+                    <i class="fas fa-redo"></i> 重置筛选
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function exportStudents() {
+    // 获取当前筛选参数
+    const params = new URLSearchParams(window.location.search);
+    
+    // 添加导出参数
+    params.set('export', 'true');
+    
+    // 跳转到导出页面
+    window.location.href = '{{ url_for("admin.students") }}?' + params.toString();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "common/base.html" %}
+
+{% block title %}成绩管理 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>成绩管理</h1>
+        <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> 返回
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">我的课程列表</h5>
+        </div>
+        <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs.dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% if assignments %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>学年学期</th>
+                            <th>课程名称</th>
+                            <th>课程性质</th>
+                            <th>选课人数</th>
+                            <th>成绩录入情况</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                        {% set selections = assignment.selections %}
+                        {% set graded_count = selections|selectattr('usual_grade', 'defined')|list|length + selections|selectattr('final_grade', 'defined')|list|length %}
+                        <tr>
+                            <td>
+                                <strong>{{ assignment.academic_year }}</strong>
+                                <br>
+                                <small class="text-muted">第{{ assignment.semester }}学期</small>
+                            </td>
+                            <td>
+                                <strong>{{ assignment.course.course_name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ assignment.course.course_id }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'primary' if assignment.course.course_type == '必修' else 'success' }}">
+                                    {{ assignment.course.course_type }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if selections|length > 0 else 'secondary' }}">
+                                    {{ selections|length }}人
+                                </span>
+                            </td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    {% if selections|length > 0 %}
+                                        {% set percentage = (graded_count / (selections|length * 2) * 100)|round %}
+                                        <div class="progress-bar bg-{{ 'success' if percentage == 100 else 'warning' if percentage > 0 else 'secondary' }}" 
+                                             style="width: 100%">
+                                            {{ percentage }}%
+                                        </div>
+                                    {% else %}
+                                        <div class="progress-bar bg-secondary" style="width: 100%">0%</div>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">{{ graded_count }}/{{ selections|length * 2 }}项</small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('teacher.grade_management', assignment_id=assignment.assignment_id) }}" 
+                                       class="btn btn-{{ 'warning' if graded_count < selections|length * 2 else 'success' }}">
+                                        <i class="fas fa-edit"></i> {{ '录入成绩' if graded_count == 0 else '继续录入' if graded_count < selections|length * 2 else '查看成绩' }}
+                                    </a>
+                                    <a href="{{ url_for('teacher.course_detail', assignment_id=assignment.assignment_id) }}" 
+                                       class="btn btn-outline-primary">
+                                        <i class="fas fa-eye"></i> 详情
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">暂无教学任务</h5>
+                <p class="text-muted">您目前没有分配任何教学任务</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,194 @@
+{% extends "common/base.html" %}
+
+{% block title %}教师详情 - {{ teacher.name }} - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>教师详情</h1>
+        <a href="{{ url_for('admin.teachers') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> 返回列表
+        </a>
+    </div>
+    
+    <div class="row">
+        <!-- 教师信息 -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">基本信息</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th width="40%">工号：</th>
+                            <td><strong>{{ teacher.teacher_id }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>姓名：</th>
+                            <td>{{ teacher.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>性别：</th>
+                            <td>
+                                {% if teacher.gender %}
+                                    <span class="badge bg-{{ 'primary' if teacher.gender == '男' else 'info' }}">
+                                        {{ teacher.gender }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">未设置</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>职称：</th>
+                            <td>{{ teacher.title or '未设置' }}</td>
+                        </tr>
+                        <tr>
+                            <th>所属系部：</th>
+                            <td>
+                                {% if teacher.department %}
+                                    {{ teacher.department.dept_name }}
+                                {% else %}
+                                    <span class="text-muted">未分配</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>入职时间：</th>
+                            <td>{{ teacher.hire_date.strftime('%Y-%m-%d') if teacher.hire_date else '未设置' }}</td>
+                        </tr>
+                        <tr>
+                            <th>专业方向：</th>
+                            <td>{{ teacher.specialty or '未设置' }}</td>
+                        </tr>
+                        <tr>
+                            <th>账户状态：</th>
+                            <td>
+                                {% if teacher.user %}
+                                    <span class="badge bg-success">已激活</span>
+                                    <br><small class="text-muted">用户名: {{ teacher.user.username }}</small>
+                                {% else %}
+                                    <span class="badge bg-warning">未激活</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 统计信息 -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">教学统计</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="border rounded p-3">
+                                <h3 class="text-primary mb-0">{{ stats.total_courses }}</h3>
+                                <small>授课课程</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border rounded p-3">
+                                <h3 class="text-success mb-0">{{ stats.total_students }}</h3>
+                                <small>授课学生</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border rounded p-3">
+                                <h3 class="text-warning mb-0">{{ stats.ongoing_courses }}</h3>
+                                <small>当前学期课程</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="btn-group">
+                        <a href="{{ url_for('admin.edit_teacher', teacher_id=teacher.teacher_id) }}" 
+                           class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>编辑信息
+                        </a>
+                        {% if teacher.user %}
+                        <a href="{{ url_for('admin.reset_user_password', user_id=teacher.user.id) }}" 
+                           class="btn btn-warning">
+                            <i class="fas fa-key me-2"></i>重置密码
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 教学任务 -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">教学任务</h5>
+        </div>
+        <div class="card-body">
+            {% if assignments %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>学年学期</th>
+                            <th>课程名称</th>
+                            <th>课程类型</th>
+                            <th>学分</th>
+                            <th>上课时间</th>
+                            <th>上课地点</th>
+                            <th>选课人数</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                        <tr>
+                            <td>
+                                <strong>{{ assignment.academic_year }}</strong>
+                                <br>
+                                <small class="text-muted">第{{ assignment.semester }}学期</small>
+                            </td>
+                            <td>
+                                <strong>{{ assignment.course.course_name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ assignment.course.course_id }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'primary' if assignment.course.course_type == '必修' else 'success' }}">
+                                    {{ assignment.course.course_type }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ assignment.course.credits or 0 }}</span>
+                            </td>
+                            <td>{{ assignment.class_time or '未设置' }}</td>
+                            <td>{{ assignment.location or '未设置' }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if assignment.selections|length > 0 else 'secondary' }}">
+                                    {{ assignment.selections|length }}/{{ assignment.enrollment_limit or '∞' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">暂无教学任务</h5>
+                <p class="text-muted">该教师当前没有教学任务</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

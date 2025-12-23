@@ -1,0 +1,177 @@
+{% extends "common/base.html" %}
+
+{% block title %}课程查询 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>课程查询</h1>
+        <div>
+            <a href="{{ url_for('student.select_courses') }}" class="btn btn-warning me-2">
+                <i class="fas fa-plus"></i> 选课操作
+            </a>
+            <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> 返回
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">课程列表</h5>
+        </div>
+        <div class="card-body">
+            {% if assignments %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>学年学期</th>
+                            <th>课程名称</th>
+                            <th>授课教师</th>
+                            <th>课程类型</th>
+                            <th>学分</th>
+                            <th>上课时间</th>
+                            <th>上课地点</th>
+                            <th>选课人数</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                        <tr>
+                            <td>
+                                <strong>{{ assignment.academic_year }}</strong><br>
+                                <small class="text-muted">第{{ assignment.semester }}学期</small>
+                            </td>
+                            <td>
+                                <strong>{{ assignment.course.course_name }}</strong><br>
+                                <small class="text-muted">{{ assignment.course.course_id }}</small>
+                            </td>
+                            <td>
+                                {{ assignment.teacher.name }}<br>
+                                <small class="text-muted">{{ assignment.teacher.teacher_id }}</small>
+                            </td>
+                            <td>
+                                {% if assignment.course.course_type == '必修' %}
+                                    <span class="badge bg-primary">必修</span>
+                                {% else %}
+                                    <span class="badge bg-success">选修</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ assignment.course.credits or 0 }}</span>
+                            </td>
+                            <td>{{ assignment.class_time or '未设置' }}</td>
+                            <td>{{ assignment.location or '未设置' }}</td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    {{ assignment.selections|length }}/{{ assignment.enrollment_limit or '∞' }}
+                                </span>
+                            </td>
+
+                            <!-- 状态 -->
+                            <td>
+                                {% if assignment.assignment_id in selected_course_ids %}
+                                    <span class="badge bg-success">已选</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">未选</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- 操作 -->
+                            <td>
+                                {% if assignment.assignment_id in selected_course_ids %}
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            onclick="dropCourse(this, '{{ assignment.assignment_id }}')"
+                                            data-course="{{ assignment.course.course_name }}">
+                                        退选
+                                    </button>
+                                {% else %}
+                                    {% if assignment.selections|length < (assignment.enrollment_limit or 999) %}
+                                        <button class="btn btn-sm btn-success"
+                                                onclick="selectCourse(this, '{{ assignment.assignment_id }}')"
+                                                data-course="{{ assignment.course.course_name }}">
+                                            选课
+                                        </button>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-secondary"
+                                                disabled>
+                                            已满
+                                        </button>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">暂无课程数据</h5>
+                <p class="text-muted">当前没有可选的课程</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function selectCourse(button, assignmentId) {
+    const courseName = button.getAttribute('data-course');
+    if (!confirm(`确定要选择课程 "${courseName}" 吗？`)) return;
+
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 处理中';
+
+    fetch(`/student/courses/${assignmentId}/select`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        if (data.success) location.reload();
+        else {
+            button.disabled = false;
+            button.innerHTML = '选课';
+        }
+    })
+    .catch(() => {
+        alert('选课失败，请稍后重试');
+        button.disabled = false;
+        button.innerHTML = '选课';
+    });
+}
+
+function dropCourse(button, assignmentId) {
+    const courseName = button.getAttribute('data-course');
+    if (!confirm(`确定要退选课程 "${courseName}" 吗？`)) return;
+
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 处理中';
+
+    fetch(`/student/courses/${assignmentId}/drop`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        if (data.success) location.reload();
+        else {
+            button.disabled = false;
+            button.innerHTML = '退选';
+        }
+    })
+    .catch(() => {
+        alert('退选失败，请稍后重试');
+        button.disabled = false;
+        button.innerHTML = '退选';
+    });
+}
+</script>
+{% endblock %}

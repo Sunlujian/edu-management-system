@@ -1,0 +1,121 @@
+{% extends "common/base.html" %}
+
+{% block title %}{{ student.name }} - 学生详情 - 教务管理系统{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>学生详情</h1>
+        <a href="{{ url_for('admin.students') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> 返回列表
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">基本信息</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <tr>
+                            <th width="40%">学号：</th>
+                            <td>{{ student.student_id }}</td>
+                        </tr>
+                        <tr>
+                            <th>姓名：</th>
+                            <td>{{ student.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>性别：</th>
+                            <td>{{ student.gender or '未设置' }}</td>
+                        </tr>
+                        <tr>
+                            <th>出生日期：</th>
+                            <td>{{ student.birth_date.strftime('%Y-%m-%d') if student.birth_date else '未设置' }}</td>
+                        </tr>
+                        <tr>
+                            <th>入学时间：</th>
+                            <td>{{ student.enrollment_date.strftime('%Y-%m-%d') if student.enrollment_date else '未设置' }}</td>
+                        </tr>
+                        <tr>
+                            <th>系部：</th>
+                            <td>
+                                {% if student.department %}
+                                    {{ student.department.dept_name }}
+                                {% else %}
+                                    <span class="text-muted">未分配</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>状态：</th>
+                            <td>
+                                <span class="badge bg-{{ 'success' if student.status == '在籍' else 'warning' if student.status == '休学' else 'secondary' }}">
+                                    {{ student.status or '在籍' }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('admin.edit_student', student_id=student.student_id) }}" 
+                       class="btn btn-primary btn-sm">
+                        <i class="fas fa-edit"></i> 编辑信息
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">选课记录</h5>
+                </div>
+                <div class="card-body">
+                    {% if selections %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>课程名称</th>
+                                    <th>授课教师</th>
+                                    <th>学年学期</th>
+                                    <th>平时成绩</th>
+                                    <th>期末成绩</th>
+                                    <th>总成绩</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for selection in selections %}
+                                <tr>
+                                    <td>{{ selection.assignment.course.course_name }}</td>
+                                    <td>{{ selection.assignment.teacher.name }}</td>
+                                    <td>{{ selection.assignment.academic_year }} 第{{ selection.assignment.semester }}学期</td>
+                                    <td>{{ selection.usual_grade or '-' }}</td>
+                                    <td>{{ selection.final_grade or '-' }}</td>
+                                    <td>
+                                        {% if selection.total_grade %}
+                                            <strong>{{ selection.total_grade }}</strong>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-book fa-2x text-muted mb-2"></i>
+                        <p class="text-muted">该学生暂无选课记录</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

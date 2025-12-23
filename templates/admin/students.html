@@ -1,0 +1,42 @@
+﻿{% extends "base.html" %}
+{% block title %}学生管理 - 教务管理系统{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4">学生管理</h1>
+    <div class="card shadow">
+        <div class="card-header">
+            <h5 class="mb-0">学生列表</h5>
+        </div>
+        <div class="card-body">
+            <a href="{{ url_for('admin.add_student') }}" class="btn btn-primary mb-3">添加学生</a>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>学号</th>
+                        <th>姓名</th>
+                        <th>性别</th>
+                        <th>系部</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.student_id }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.gender or '未设置' }}</td>
+                        <td>{{ student.department.dept_name if student.department else '未分配' }}</td>
+                        <td>{{ student.status }}</td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-info">编辑</a>
+                            <a href="#" class="btn btn-sm btn-danger">删除</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

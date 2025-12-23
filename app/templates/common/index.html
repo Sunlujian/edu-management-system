@@ -1,0 +1,20 @@
+{% extends "common/base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 text-center">
+        <h1 class="mb-4">教务管理系统</h1>
+        <p class="lead mb-4">学生、教师、管理员一体化管理平台</p>
+        
+        {% if not current_user.is_authenticated %}
+            <div class="d-grid gap-2 col-md-6 mx-auto">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">登录</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary btn-lg">注册</a>
+            </div>
+        {% else %}
+            <p>欢迎回来，{{ current_user.username }}！</p>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">进入系统</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
